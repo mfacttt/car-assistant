@@ -19,8 +19,24 @@ var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 // Add services to the container.
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseInMemoryDatabase("CarAssistantDb"));
+if (builder.Environment.IsDevelopment())
+{
+    // В режиме разработки используем InMemory БД (как было изначально)
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseInMemoryDatabase("CarAssistantDb"));
+}
+else
+{
+    // В продакшене используем реальную persistent БД (SQLite)
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    if (string.IsNullOrWhiteSpace(connectionString))
+    {
+        throw new InvalidOperationException("Connection string 'DefaultConnection' is not configured.");
+    }
+
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlite(connectionString));
+}
 
 builder.Services.AddScoped<LoginUserCommandHandler>();
 builder.Services.AddScoped<RegisterUserCommandHandler>();
@@ -61,6 +77,13 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Создаём БД и таблицы при запуске (для SQLite)
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.EnsureCreated();
+}
 
 app.UseMiddleware<EnsureCarProfileMiddleware>();
 
