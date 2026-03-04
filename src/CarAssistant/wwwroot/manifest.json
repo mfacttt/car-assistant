@@ -1,0 +1,22 @@
+﻿{
+	"name": "Car Assistant",
+	"short_name": "Car",
+	"description": "Помощник по расходам и обслуживанию автомобиля",
+	"start_url": "/Auth/Index",
+	"scope": "/",
+	"display": "fullscreen",
+	"background_color": "#020617",
+	"theme_color": "#8b5cf6",
+	"icons": [
+		{
+			"src": "/icons/icon-192x192.png",
+			"sizes": "192x192",
+			"type": "image/png"
+		},
+		{
+			"src": "/icons/icon-512x512.png",
+			"sizes": "512x512",
+			"type": "image/png"
+		}
+	]
+}
