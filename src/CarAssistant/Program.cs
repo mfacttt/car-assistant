@@ -12,6 +12,7 @@ using CarAssistant.Features.Statistics.Queries;
 using CarAssistant.Infrastructure;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -65,7 +66,21 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+var wellKnownPath = Path.Combine(builder.Environment.WebRootPath, ".well-known");
+if (Directory.Exists(wellKnownPath))
+{
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(wellKnownPath),
+        RequestPath = "/.well-known",
+        ServeUnknownFileTypes = true,
+        DefaultContentType = "application/json"
+    });
+}
+
 app.UseRouting();
+
 
 app.UseAuthentication();
 app.UseAuthorization();
