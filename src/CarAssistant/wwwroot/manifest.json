@@ -5,7 +5,7 @@
 	"start_url": "/Auth/Index",
 	"scope": "/",
 	"display": "fullscreen",
-	"background_color": "#020617",
+	"background_color": "#1f3356",
 	"theme_color": "#8b5cf6",
 	"icons": [
 		{
