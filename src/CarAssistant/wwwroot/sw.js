@@ -1,4 +1,4 @@
-const CACHE_NAME = 'car-assistant-cache-v1';
+const CACHE_NAME = 'car-assistant-cache-v2';
 
 const OFFLINE_URLS = [
 	'/',
@@ -39,6 +39,24 @@ self.addEventListener('fetch', event => {
 		return;
 	}
 
+	// Для HTML/навигационных запросов используем стратегию network-first,
+	// чтобы всегда видеть актуальные данные (машина, расходы и т.п.).
+	if (request.mode === 'navigate' || (request.headers.get('accept') || '').includes('text/html')) {
+		event.respondWith(
+			fetch(request)
+				.then(networkResponse => {
+					const copy = networkResponse.clone();
+					caches.open(CACHE_NAME).then(cache => {
+						cache.put(request, copy);
+					});
+					return networkResponse;
+				})
+				.catch(() => caches.match(request) || caches.match('/Home/Index') || caches.match('/Auth/Index'))
+		);
+		return;
+	}
+
+	// Для статики (CSS/JS) оставляем cache-first
 	event.respondWith(
 		caches.match(request)
 			.then(cachedResponse => {
@@ -53,10 +71,6 @@ self.addEventListener('fetch', event => {
 							cache.put(request, copy);
 						});
 						return networkResponse;
-					})
-					.catch(() => {
-						// Если не удалось ни из сети, ни из кеша — просто падаем
-						return caches.match('/Home/Index') || caches.match('/Auth/Index');
 					});
 			})
 	);
