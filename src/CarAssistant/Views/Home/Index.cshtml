@@ -1,0 +1,289 @@
+﻿@using CarAssistant.Features.Dashboard.Models
+@using CarAssistant.Features.Expenses.Models
+@using System.Globalization
+@model HomeDashboardViewModel
+
+@{
+    Layout = "_Layout";
+}
+
+<div
+    class="flex items-center justify-between bg-slate-800/30 backdrop-blur-sm border border-slate-700 rounded-2xl p-5">
+    <div>
+        <p class="text-xs text-slate-400 mb-1">Мой автомобиль</p>
+        @if (Model.Car is not null)
+        {
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
+                @Model.Car.Brand @Model.Car.Model
+            </h1>
+            <p class="text-sm text-slate-400 mt-1">
+                @Model.Car.Year • @Model.Car.FuelType • @Model.Car.EngineVolume.ToString("0.0") л
+            </p>
+            <p class="text-xs text-slate-500 mt-1">
+                VIN: @Model.Car.Vin • Пробег: @Model.Car.Mileage.ToString("N0") км
+            </p>
+        }
+        else
+        {
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
+                Машина не указана
+            </h1>
+            <p class="text-sm text-slate-400 mt-1">Добавьте данные автомобиля, чтобы видеть статистику</p>
+        }
+    </div>
+    <button onclick="openCarModal()"
+            class="w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 to-cyan-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/50 hover:scale-110 transition-transform duration-300">
+        <i class="fas fa-pencil-alt text-lg"></i>
+    </button>
+</div>
+
+<div class="flex items-center justify-between">
+    <div class="flex items-center gap-2">
+        <i class="fas fa-bell text-purple-400 text-sm"></i>
+        <h2 class="text-lg font-semibold text-slate-200">Напоминания и события</h2>
+        <span class="text-xs bg-purple-500/20 text-purple-300 px-2 py-1 rounded-full">@Model.Notifications.Count() активных</span>
+    </div>
+    <button onclick="openNotificationModal()"
+            class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 to-cyan-600 flex items-center justify-center text-white shadow-md shadow-purple-500/30 hover:scale-110 transition-transform duration-300">
+        <i class="fas fa-plus text-xs"></i>
+    </button>
+</div>
+
+<div class="space-y-3" id="notificationsList">
+    @if (Model.Notifications.Any())
+    {
+        foreach (var notification in Model.Notifications)
+        {
+            <div class="notification-container" id="notif@notification.Id">
+                <form asp-action="DeleteNotification" asp-controller="Home" method="post">
+                    <input type="hidden" name="id" value="@notification.Id" />
+                    <button type="submit" class="delete-btn"><i class="fas fa-trash"></i></button>
+                </form>
+                <div
+                    class="notification-item bg-slate-800/30 backdrop-blur-sm border border-slate-700 rounded-2xl p-4 flex items-center justify-between"
+                    ontouchstart="startSwipe(event)" ontouchmove="swipeMove(event)" ontouchend="endSwipe(event)"
+                    onmousedown="startSwipe(event)" onmousemove="swipeMove(event)" onmouseup="endSwipe(event)"
+                    onmouseleave="cancelSwipe(event)">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-cyan-500 flex items-center justify-center text-white">
+                            🔔
+                        </div>
+                        <div>
+                            <p class="font-semibold text-white">@notification.Type</p>
+                            <p class="text-xs text-slate-400">@notification.Date.ToString("dd MMMM yyyy")</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-slate-500"></i>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="bg-slate-800/30 backdrop-blur-sm border border-slate-700 rounded-2xl p-4 text-sm text-slate-400 text-center">
+            Пока нет активных напоминаний.
+        </div>
+    }
+</div>
+
+<div class="bg-gradient-to-br from-purple-600/10 to-cyan-600/10 border border-purple-500/30 rounded-2xl p-5">
+    <div class="flex items-center gap-3 mb-3">
+        <div
+            class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center text-white">
+            📊
+        </div>
+        <h3 class="text-lg font-semibold text-white">Статистика</h3>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+        <div>
+            <p class="text-xs text-slate-400 mb-1">Средний расход</p>
+            <p class="text-2xl font-bold text-white">
+                @(Model.AverageConsumptionLPer100Km?.ToString("F1") ?? "-")
+                <span class="text-sm text-slate-400">л/100км</span>
+            </p>
+            <p class="text-xs text-slate-500 mt-1">за всё время (по заправкам с пробегом)</p>
+        </div>
+        <div>
+            <p class="text-xs text-slate-400 mb-1">Средний пробег</p>
+            <p class="text-2xl font-bold text-white">
+                @(Model.TotalDistanceKm?.ToString("N0") ?? "-")
+                <span class="text-sm text-slate-400">км</span>
+            </p>
+            <p class="text-xs text-slate-500 mt-1">общий пробег (по заправкам)</p>
+        </div>
+    </div>
+</div>
+
+<div class="space-y-3">
+    <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+        <i class="fas fa-history text-purple-400"></i>
+        Последние расходы
+    </h3>
+    @if (Model.LatestExpenses.Any())
+    {
+        foreach (var expense in Model.LatestExpenses)
+        {
+            <div class="notification-container">
+                <form asp-action="DeleteExpense" asp-controller="Home" method="post">
+                    <input type="hidden" name="id" value="@expense.Id" />
+                    <button type="submit" class="delete-btn"><i class="fas fa-trash"></i></button>
+                </form>
+                <div class="notification-item bg-slate-800/30 backdrop-blur-sm border border-slate-700 rounded-2xl p-4"
+                     ontouchstart="startSwipe(event)" ontouchmove="swipeMove(event)" ontouchend="endSwipe(event)"
+                     onmousedown="startSwipe(event)" onmousemove="swipeMove(event)" onmouseup="endSwipe(event)"
+                     onmouseleave="cancelSwipe(event)">
+                <div class="flex items-start justify-between mb-2">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm
+                                    @(expense.Type == ExpenseType.Fuel ? "bg-gradient-to-br from-blue-400 to-cyan-500" : expense.Type == ExpenseType.Service ? "bg-gradient-to-br from-orange-400 to-red-500" : "bg-gradient-to-br from-purple-400 to-pink-500")">
+                            @(expense.Type == ExpenseType.Fuel ? "⛽" : expense.Type == ExpenseType.Service ? "🔧" : "💸")
+                        </div>
+                        <div>
+                            <p class="font-semibold text-white">
+                                @(expense.Type == ExpenseType.Fuel ? "Заправка" : expense.Type == ExpenseType.Service ? "Сервис" : expense.Title ?? "Другой расход")
+                            </p>
+                            <p class="text-xs text-slate-400">
+                                @if (expense.Type == ExpenseType.Fuel)
+                                {
+                                    @:(@expense.FuelType, @expense.Liters л)
+                                }
+                                else if (expense.Type == ExpenseType.Service)
+                                {
+                                    @:(@expense.ServiceKind @expense.Title)
+                                }
+                                else if (!string.IsNullOrWhiteSpace(expense.Comment))
+                                {
+                                    @expense.Comment
+                                }
+                            </p>
+                        </div>
+                    </div>
+                    <span class="text-sm font-bold text-white">@expense.Amount.ToString("N0") леи</span>
+                </div>
+                <div class="flex justify-between text-xs text-slate-400">
+                    <span>@expense.OccurredAt.ToString("dd MMM yyyy, HH:mm")</span>
+                    @if (expense.Mileage.HasValue)
+                    {
+                        <span>пробег: @expense.Mileage.Value.ToString("N0") км</span>
+                    }
+                </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="bg-slate-800/30 backdrop-blur-sm border border-slate-700 rounded-2xl p-4 text-sm text-slate-400 text-center">
+            Пока нет расходов. Добавьте первый на вкладке «Расход».
+        </div>
+    }
+</div>
+
+<div id="carModal" class="modal-overlay" onclick="closeModal('car')">
+    <div class="modal-content bg-slate-900 border border-slate-700 rounded-3xl p-6 shadow-2xl shadow-purple-500/20"
+         onclick="event.stopPropagation()">
+        <h2 class="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent mb-4">
+            Редактировать авто</h2>
+
+        <form asp-action="SaveCarFromHome" asp-controller="Home" method="post" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Марка</label>
+                <input type="text" id="carBrand" name="brand" value="@(Model.Car?.Brand ?? "")"
+                       class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-slate-200">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Модель</label>
+                <input type="text" id="carModel" name="model" value="@(Model.Car?.Model ?? "")"
+                       class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-slate-200">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Год</label>
+                <input type="number" id="carYear" name="year" value="@(Model.Car?.Year.ToString() ?? "")"
+                       class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-slate-200">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">VIN‑код (ID машины)</label>
+                <input type="text" id="carVin" name="vin" value="@(Model.Car?.Vin ?? "")"
+                       class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-slate-200">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Пробег (км)</label>
+                <input type="number" id="carMileage" name="mileage" value="@(Model.Car?.Mileage.ToString() ?? "")" min="0" step="1"
+                       class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-slate-200">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Объём двигателя (л)</label>
+                <input type="number" id="carEngine" name="engineVolume" value="@(Model.Car?.EngineVolume.ToString("0.0") ?? "")" min="0.1" step="0.1"
+                       class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-slate-200">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Топливо</label>
+                <select id="carFuel" name="fuelType"
+                        class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-slate-200">
+                    <option value="бензин" class="bg-slate-800" selected="@(Model.Car?.FuelType == "бензин")">Бензин</option>
+                    <option value="дизель" class="bg-slate-800" selected="@(Model.Car?.FuelType == "дизель")">Дизель</option>
+                    <option value="электричество" class="bg-slate-800" selected="@(Model.Car?.FuelType == "электричество")">Электричество</option>
+                    <option value="гибрид" class="bg-slate-800" selected="@(Model.Car?.FuelType == "гибрид")">Гибрид</option>
+                </select>
+            </div>
+            <div class="flex gap-3 pt-4">
+                <button type="button" onclick="closeModal('car')"
+                        class="flex-1 py-3 border border-slate-700 rounded-xl text-slate-300 hover:bg-slate-800 transition-colors">
+                    Отмена
+                </button>
+                <button type="submit"
+                        class="flex-1 py-3 bg-gradient-to-r from-purple-600 to-cyan-600 text-white font-semibold rounded-xl shadow-lg shadow-purple-500/50 hover:scale-[1.02] transition-all duration-300">
+                    Сохранить
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="notificationModal" class="modal-overlay" onclick="closeModal('notification')">
+    <div class="modal-content bg-slate-900 border border-slate-700 rounded-3xl p-6 shadow-2xl shadow-purple-500/20"
+         onclick="event.stopPropagation()">
+        <h2 class="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent mb-4">
+            <span id="notificationModalTitle">Новое событие</span></h2>
+
+        <form asp-action="AddNotification" asp-controller="Home" method="post" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Тип события</label>
+            <select id="notifType" name="type"
+                        class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-slate-200">
+                    <option value="Техосмотр" class="bg-slate-800">Техосмотр</option>
+                    <option value="Замена масла" class="bg-slate-800">Замена масла</option>
+                    <option value="Замена масла в коробке" class="bg-slate-800">Замена масла в коробке</option>
+                    <option value="Страховка" class="bg-slate-800">Страховка</option>
+                    <option value="Дорожный налог" class="bg-slate-800">Дорожный налог</option>
+                    <option value="Шины" class="bg-slate-800">Сезонная замена шин</option>
+                    <option value="Другое" class="bg-slate-800">Другое</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Дата</label>
+                <input type="date" id="notifDate" name="date" value="2025-05-20"
+                       class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-slate-200">
+            </div>
+
+            <div class="flex gap-3 pt-4">
+                <button type="button" onclick="closeModal('notification')"
+                        class="flex-1 py-3 border border-slate-700 rounded-xl text-slate-300 hover:bg-slate-800 transition-colors">
+                    Отмена
+                </button>
+                <button type="submit"
+                        class="flex-1 py-3 bg-gradient-to-r from-purple-600 to-cyan-600 text-white font-semibold rounded-xl shadow-lg shadow-purple-500/50 hover:scale-[1.02] transition-all duration-300">
+                    Добавить
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/index.js" asp-append-version="true"></script>
+}
+

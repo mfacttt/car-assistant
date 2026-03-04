@@ -1,0 +1,44 @@
+﻿.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+.shadow-glow {
+    box-shadow: 0 10px 25px -5px rgba(139, 92, 246, 0.4), 0 8px 10px -6px rgba(139, 92, 246, 0.3);
+}
+
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+@media (max-width: 360px) {
+    .text-4xl {
+        font-size: 2rem;
+    }
+
+    .py-3 {
+        padding-top: 0.7rem;
+        padding-bottom: 0.7rem;
+    }
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.focus\:ring-purple-500\/50:focus {
+    --tw-ring-color: rgba(168, 85, 247, 0.5);
+}

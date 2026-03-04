@@ -1,0 +1,45 @@
+## Build / runtime
+bin/
+obj/
+*.log
+*.tmp
+*.temp
+
+## Visual Studio / Rider
+.vs/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.DotSettings.user
+
+## VS Code
+.vscode/
+
+## NuGet
+*.nupkg
+*.snupkg
+*.nuspec
+packages/
+**/project.assets.json
+**/project.lock.json
+
+## Publish output
+**/publish/
+**/artifacts/
+
+## Node / frontend
+node_modules/
+dist/
+
+## ASP.NET Core specifics
+**/Properties/launchSettings.json
+appsettings.Development.json
+
+## Static content uploads
+src/CarAssistant/wwwroot/uploads/
+
+## OS files
+.DS_Store
+Thumbs.db

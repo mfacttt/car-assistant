@@ -1,0 +1,197 @@
+﻿@using CarAssistant.Features.Statistics.Models
+@model StatisticsViewModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Header"] = "Статистика";
+}
+
+<div class="bg-slate-800/30 backdrop-blur-sm border border-slate-700 rounded-2xl p-1 flex">
+    <button id="tabFuelStats" onclick="switchTab('fuel')"
+            class="tab-button active flex-1 py-3 px-2 rounded-xl text-sm font-medium text-purple-300 border border-purple-500/30 bg-purple-600/20 transition-all">
+        <i class="fas fa-gas-pump mr-1"></i> Заправка
+    </button>
+    <button id="tabConsumptionStats" onclick="switchTab('consumption')"
+            class="tab-button flex-1 py-3 px-2 rounded-xl text-sm font-medium text-slate-400 hover:text-slate-300 transition-all">
+        <i class="fas fa-chart-line mr-1"></i> Расход
+    </button>
+    <button id="tabOtherStats" onclick="switchTab('other')"
+            class="tab-button flex-1 py-3 px-2 rounded-xl text-sm font-medium text-slate-400 hover:text-slate-300 transition-all">
+        <i class="fas fa-folder-open mr-1"></i> Остальное
+    </button>
+</div>
+
+<div id="statsFuel" class="space-y-4">
+    <div class="bg-gradient-to-br from-purple-600/10 to-cyan-600/10 border border-purple-500/30 rounded-2xl p-5">
+        <h3 class="text-lg font-semibold text-white flex items-center gap-2 mb-4">
+            <i class="fas fa-gas-pump text-purple-400"></i>
+            Статистика заправок
+        </h3>
+
+        <div class="space-y-4">
+            <div class="flex items-center justify-between p-3 bg-slate-800/30 rounded-xl">
+                <span class="text-slate-400">Количество заправок</span>
+                <span class="text-2xl font-bold text-white">@Model.Fuel.FillUps</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-slate-800/30 rounded-xl">
+                <span class="text-slate-400">Залито топлива</span>
+                <span class="text-2xl font-bold text-white">@Model.Fuel.TotalLiters.ToString("N1") <span class="text-sm text-slate-400">л</span></span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-slate-800/30 rounded-xl">
+                <span class="text-slate-400">Всего потрачено</span>
+                <span class="text-2xl font-bold text-white">@Model.Fuel.TotalAmount.ToString("N0") <span class="text-sm text-slate-400">леи</span></span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-slate-800/30 rounded-xl">
+                <span class="text-slate-400">Средняя цена за литр</span>
+                <span class="text-2xl font-bold text-white">@Model.Fuel.AveragePricePerLiter.ToString("F1") <span class="text-sm text-slate-400">леи/л</span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-slate-800/30 backdrop-blur-sm border border-slate-700 rounded-2xl p-5">
+        <h4 class="text-sm font-medium text-slate-400 mb-3">Динамика заправок по месяцам</h4>
+        @if (Model.Fuel.Monthly.Any())
+        {
+            <div class="flex gap-1 h-24 items-end">
+                @foreach (var month in Model.Fuel.Monthly)
+                {
+                    <div class="flex-1 bg-gradient-to-t from-purple-500 to-cyan-500 rounded-t-lg" style="height:@month.HeightPercent%"></div>
+                }
+            </div>
+            <div class="flex justify-between text-xs text-slate-500 mt-2">
+                @foreach (var month in Model.Fuel.Monthly)
+                {
+                    <span>@month.MonthName</span>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-sm text-slate-500">Недостаточно данных по заправкам.</div>
+        }
+    </div>
+</div>
+
+<div id="statsConsumption" class="space-y-4 hidden">
+    <div class="bg-gradient-to-br from-purple-600/10 to-cyan-600/10 border border-purple-500/30 rounded-2xl p-5">
+        <h3 class="text-lg font-semibold text-white flex items-center gap-2 mb-4">
+            <i class="fas fa-chart-line text-cyan-400"></i>
+            Анализ расхода
+        </h3>
+
+        <div class="space-y-4">
+            <div class="flex items-center justify-between p-3 bg-slate-800/30 rounded-xl">
+                <span class="text-slate-400">Средний расход</span>
+                <span class="text-2xl font-bold text-white">
+                    @(Model.Consumption.AverageConsumptionLPer100Km?.ToString("F1") ?? "-")
+                    <span class="text-sm text-slate-400">л/100км</span>
+                </span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-slate-800/30 rounded-xl">
+                <span class="text-slate-400">Пройдено всего</span>
+                <span class="text-2xl font-bold text-white">@(Model.Consumption.TotalDistanceKm?.ToString("N0") ?? "-") <span class="text-sm text-slate-400">км</span></span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-slate-800/30 rounded-xl">
+                <span class="text-slate-400">Средняя цена</span>
+                <span class="text-2xl font-bold text-white">
+                    @(Model.Consumption.AverageFuelPrice?.ToString("F1") ?? "-")
+                    <span class="text-sm text-slate-400">леи/л</span>
+                </span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-slate-800/30 rounded-xl">
+                <span class="text-slate-400">Траты на 100км</span>
+                <span class="text-2xl font-bold text-white">
+                    @(Model.Consumption.CostPer100Km?.ToString("N0") ?? "-")
+                    <span class="text-sm text-slate-400">леи</span>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-slate-800/30 backdrop-blur-sm border border-slate-700 rounded-2xl p-5">
+        <h4 class="text-sm font-medium text-slate-400 mb-3">Расход по месяцам (л/100км)</h4>
+        @if (Model.Consumption.Monthly.Any())
+        {
+            <div class="space-y-2">
+                @foreach (var month in Model.Consumption.Monthly)
+                {
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs w-8 text-slate-500">@month.MonthName</span>
+                        <div class="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
+                            <div class="h-full bg-purple-500 rounded-full" style="width:@month.WidthPercent%"></div>
+                        </div>
+                        <span class="text-xs text-white">@month.ConsumptionLPer100Km.ToString("F1")</span>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-sm text-slate-500">Недостаточно данных для расчёта расхода по месяцам.</div>
+        }
+    </div>
+</div>
+
+<div id="statsOther" class="space-y-4 hidden">
+    <div class="bg-gradient-to-br from-purple-600/10 to-cyan-600/10 border border-purple-500/30 rounded-2xl p-5">
+        <h3 class="text-lg font-semibold text-white flex items-center gap-2 mb-4">
+            <i class="fas fa-folder-open text-pink-400"></i>
+            Расходы по категориям
+        </h3>
+        <div class="mb-4">
+            <h4 class="text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
+                <i class="fas fa-wrench text-purple-400"></i>
+                Сервис и обслуживание
+            </h4>
+            <div class="space-y-2 pl-2">
+                @if (Model.Other.ServiceByKind.Any())
+                {
+                    @foreach (var cat in Model.Other.ServiceByKind)
+                    {
+                        <div class="flex justify-between text-sm">
+                            <span class="text-slate-400">@cat.Name</span>
+                            <span class="text-white">@cat.Amount.ToString("N0") леи</span>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-sm text-slate-500">Нет сервисных расходов.</div>
+                }
+            </div>
+        </div>
+        <div class="mb-4">
+            <h4 class="text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
+                <i class="fas fa-ellipsis-h text-cyan-400"></i>
+                Другие расходы
+            </h4>
+            <div class="space-y-2 pl-2">
+                @if (Model.Other.OtherByTitle.Any())
+                {
+                    @foreach (var cat in Model.Other.OtherByTitle)
+                    {
+                        <div class="flex justify-between text-sm">
+                            <span class="text-slate-400">@cat.Name</span>
+                            <span class="text-white">@cat.Amount.ToString("N0") леи</span>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-sm text-slate-500">Нет прочих расходов.</div>
+                }
+            </div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-slate-700">
+            <div class="flex justify-between font-semibold">
+                <span class="text-slate-300">Всего расходов (кроме топлива)</span>
+                <span class="text-white">@((Model.Other.ServiceTotal + Model.Other.OtherTotal).ToString("N0")) леи</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script src="~/js/statistic.js" asp-append-version="true"></script>
+}

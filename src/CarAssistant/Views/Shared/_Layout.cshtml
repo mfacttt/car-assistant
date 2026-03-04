@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Главная · Car Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="~/css/main.css" asp-append-version="true">
+
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+
+<body class="bg-slate-950 text-slate-200 antialiased min-h-screen flex flex-col">
+    <div class="fixed inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 -z-10"></div>
+    <div class="fixed inset-0 bg-gradient-to-b from-purple-950/20 via-transparent to-transparent pointer-events-none -z-10"></div>
+    <div class="fixed -top-20 -left-20 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl animate-pulse -z-10"></div>
+    <div class="fixed -bottom-20 -right-20 w-80 h-80 bg-cyan-600/20 rounded-full blur-3xl animate-pulse [animation-delay:2s] -z-10"></div>
+    
+    <header class="pt-6 pb-2 px-4">
+        <div class="max-w-md mx-auto w-full flex items-center justify-between gap-3">
+            <div class="flex-1 text-left">
+                <a href='@Url.Action("Index","Home")' class="text-3xl font-bold bg-gradient-logo bg-clip-text text-transparent">🚗 Car Assistant</a>
+            </div>
+            <form asp-controller="Auth" asp-action="Logout" method="post">
+                <button type="submit" class="w-10 h-10 rounded-full flex items-center justify-center text-slate-300 hover:text-red-400 border border-slate-700 hover:border-red-500 transition-colors">
+                    <i class="fas fa-sign-out-alt text-lg"></i>
+                </button>
+            </form>
+        </div>
+    </header>
+
+    <main class="flex-1 overflow-y-auto px-4 pb-24">
+        <div class="max-w-md mx-auto w-full space-y-4 py-4">
+            @RenderBody()
+        </div>
+    </main>
+
+    <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/80 backdrop-blur-md border-t border-slate-800 py-2 shadow-2xl shadow-purple-500/10">
+        <div class="max-w-md mx-auto px-4">
+            <div class="flex items-center justify-around gap-2">
+                <a href="@Url.Action("Index", "Dairy")"
+                   class="flex flex-col items-center gap-1 px-4 py-2 rounded-2xl text-slate-400 hover:text-purple-400 hover:bg-white/5 transition-all duration-200 group">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                    </svg>
+                    <span class="text-xs font-medium">Дневник</span>
+                </a>
+
+                <a href="@Url.Action("Index", "Consumation")"
+                   class="flex flex-col items-center gap-1 px-5 py-2 rounded-2xl bg-gradient-to-r from-purple-600 to-cyan-600 text-white shadow-lg shadow-purple-500/50 -translate-y-3 hover:scale-105 transition-all duration-300">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    <span class="text-xs font-bold">Добавить</span>
+                </a>
+
+                <a href="@Url.Action("Index", "Statistic")"
+                   class="flex flex-col items-center gap-1 px-4 py-2 rounded-2xl text-slate-400 hover:text-cyan-400 hover:bg-white/5 transition-all duration-200 group">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    <span class="text-xs font-medium">Статистика</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

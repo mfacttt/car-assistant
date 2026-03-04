@@ -1,0 +1,134 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap');
+
+* {
+    font-family: 'Inter', system-ui, sans-serif;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(139, 92, 246, 0.3) transparent;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(139, 92, 246, 0.3);
+    border-radius: 20px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(139, 92, 246, 0.5);
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.bg-gradient-logo {
+    position: relative;
+    display: inline-block;
+    background: linear-gradient(135deg, #c084fc, #22d3ee);
+}
+
+/* .logo-glow-ring was removed to restore original simple logo styling */
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #8b5cf6, #22d3ee);
+}
+
+.text-gradient-headline {
+    background: linear-gradient(to right, #ffffff, #e9d5ff, #a5f3fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.shadow-glow {
+    box-shadow: 0 10px 25px -5px rgba(139, 92, 246, 0.4), 0 8px 10px -6px rgba(139, 92, 246, 0.3);
+}
+
+.shadow-glow-light {
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+}
+
+.tab-button {
+    transition: all 0.2s;
+}
+
+.tab-button.active {
+    background: rgba(139, 92, 246, 0.2);
+    color: #c084fc;
+    border-color: rgba(139, 92, 246, 0.5);
+}
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-content {
+    max-width: 90%;
+    width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.notification-item {
+    transition: transform 0.2s ease;
+    cursor: pointer;
+}
+
+.notification-item.swiped {
+    transform: translateX(-60px);
+}
+
+.notification-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1rem;
+}
+
+.delete-btn {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 60px;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0 1rem 1rem 0;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+}
+
+.delete-btn.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.input-field {
+    background: rgba(30, 41, 59, 0.4);
+    backdrop-filter: blur(2px);
+}
+
+.hidden {
+    display: none !important;
+}

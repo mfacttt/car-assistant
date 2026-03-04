@@ -1,0 +1,209 @@
+﻿@{
+    Layout = "_Layout";
+    ViewData["Header"] = "Добавить расход";
+}
+
+<form asp-action="Add" asp-controller="Consumation" method="post" class="space-y-4" id="expenseForm">
+<input type="hidden" id="expenseType" name="Type" value="Service" />
+
+<div class="bg-slate-800/30 backdrop-blur-sm border border-slate-700 rounded-2xl p-1 flex">
+    <button type="button" id="tabService" onclick="switchTab('service')"
+            class="tab-button active flex-1 py-3 px-2 rounded-xl text-sm font-medium text-purple-300 border border-purple-500/30 bg-purple-600/20 transition-all">
+        <i class="fas fa-wrench mr-1"></i> Сервис
+    </button>
+    <button type="button" id="tabFuel" onclick="switchTab('fuel')"
+            class="tab-button flex-1 py-3 px-2 rounded-xl text-sm font-medium text-slate-400 hover:text-slate-300 transition-all">
+        <i class="fas fa-gas-pump mr-1"></i> Заправка
+    </button>
+    <button type="button" id="tabOther" onclick="switchTab('other')"
+            class="tab-button flex-1 py-3 px-2 rounded-xl text-sm font-medium text-slate-400 hover:text-slate-300 transition-all">
+        <i class="fas fa-ellipsis-h mr-1"></i> Другое
+    </button>
+    </div>
+
+<div id="formService" class="space-y-4">
+    <div class="bg-slate-800/30 backdrop-blur-sm border border-slate-700 rounded-2xl p-5 space-y-4">
+        <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+            <i class="fas fa-wrench text-purple-400"></i>
+            Сервисное обслуживание
+        </h3>
+
+        <div>
+            <label class="block text-sm font-medium text-slate-300 mb-1">Вид сервиса</label>
+            <select name="ServiceKind"
+                class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-slate-200">
+                <option value="to" class="bg-slate-800">Техническое обслуживание</option>
+                <option value="repair" class="bg-slate-800">Ремонт</option>
+                <option value="tire" class="bg-slate-800">Шиномонтаж</option>
+                <option value="wash" class="bg-slate-800">Мойка / химчистка</option>
+                <option value="diagnostic" class="bg-slate-800">Диагностика</option>
+                <option value="other" class="bg-slate-800">Другое</option>
+            </select>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-slate-300 mb-1">Название работы</label>
+            <input type="text" name="Title" placeholder="например: замена масла"
+                   class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-slate-200 placeholder-slate-500">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-slate-300 mb-1">Текущий пробег <span class="text-slate-500">(км)</span></label>
+            <input type="number" name="Mileage" placeholder="12500" min="0"
+                   class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-slate-200 placeholder-slate-500">
+        </div>
+
+        <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Сумма <span
+                    class="text-slate-500">(леи)</span></label>
+            <input type="number" name="Amount" placeholder="3500" min="0"
+                   class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-slate-200 placeholder-slate-500">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-slate-300 mb-1">Комментарий</label>
+            <textarea name="Comment" rows="2" placeholder="дополнительные детали..."
+                      class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-slate-200 placeholder-slate-500"></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Дата</label>
+                <input type="date" name="Date" value="2025-05-20"
+                       class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-slate-200">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Время</label>
+                <input type="time" name="Time" value="14:30"
+                       class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-slate-200">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="formFuel" class="space-y-4 hidden">
+    <div class="bg-slate-800/30 backdrop-blur-sm border border-slate-700 rounded-2xl p-5 space-y-4">
+        <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+            <i class="fas fa-gas-pump text-cyan-400"></i>
+            Заправка
+        </h3>
+
+        <div>
+            <label class="block text-sm font-medium text-slate-300 mb-1">Тип топлива</label>
+            <select name="FuelType"
+                class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-slate-200">
+                <option value="92" class="bg-slate-800">АИ-92</option>
+                <option value="95" class="bg-slate-800">АИ-95</option>
+                <option value="98" class="bg-slate-800">АИ-98</option>
+                <option value="diesel" class="bg-slate-800">Дизель</option>
+                <option value="gas" class="bg-slate-800">Газ</option>
+                <option value="electro" class="bg-slate-800">Электро</option>
+            </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Литров</label>
+                <input type="number" name="Liters" step="0.1" placeholder="45.5" min="0"
+                       class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-slate-200 placeholder-slate-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Цена за л <span
+                    class="text-slate-500">(леи)</span></label>
+                <input type="number" name="PricePerLiter" step="0.01" placeholder="55.50" min="0"
+                       class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-slate-200 placeholder-slate-500">
+            </div>
+        </div>
+
+        <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Сумма <span
+                    class="text-slate-500">(леи)</span></label>
+            <input type="number" name="Amount" placeholder="2525" min="0"
+                   class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-slate-200 placeholder-slate-500">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-slate-300 mb-1">Текущий пробег <span class="text-slate-500">(км)</span></label>
+            <input type="number" name="Mileage" placeholder="12500" min="0"
+                   class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-slate-200 placeholder-slate-500">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-slate-300 mb-1">Комментарий</label>
+            <textarea name="Comment" rows="2" placeholder="например: заправка на трассе"
+                      class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-slate-200 placeholder-slate-500"></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Дата</label>
+                <input type="date" name="Date" value="2025-05-20"
+                       class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-slate-200">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Время</label>
+                <input type="time" name="Time" value="14:30"
+                       class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-slate-200">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="formOther" class="space-y-4 hidden">
+    <div class="bg-slate-800/30 backdrop-blur-sm border border-slate-700 rounded-2xl p-5 space-y-4">
+        <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+            <i class="fas fa-ellipsis-h text-pink-400"></i>
+            Другой расход
+        </h3>
+
+        <div>
+            <label class="block text-sm font-medium text-slate-300 mb-1">Название</label>
+            <input type="text" name="Title" placeholder="например: парковка, штраф, мойка"
+                   class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-slate-200 placeholder-slate-500">
+        </div>
+
+        <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Сумма <span
+                    class="text-slate-500">(леи)</span></label>
+            <input type="number" name="Amount" placeholder="500" min="0"
+                   class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-slate-200 placeholder-slate-500">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-slate-300 mb-1">Пробег <span class="text-slate-500">(км, опционально)</span></label>
+            <input type="number" name="Mileage" placeholder="12500" min="0"
+                   class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-slate-200 placeholder-slate-500">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-slate-300 mb-1">Комментарий</label>
+            <textarea name="Comment" rows="2" placeholder="детали расхода"
+                      class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-slate-200 placeholder-slate-500"></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Дата</label>
+                <input type="date" name="Date" value="2025-05-20"
+                       class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-slate-200">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Время</label>
+                <input type="time" name="Time" value="14:30"
+                       class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-slate-200">
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <button type="submit"
+            class="w-full py-4 bg-gradient-to-r from-purple-600 to-cyan-600 text-white font-semibold text-lg rounded-xl shadow-lg shadow-purple-500/50 hover:scale-[1.02] hover:-translate-y-1 transition-all duration-300">
+        <i class="fas fa-plus mr-2"></i>
+        Добавить расход
+    </button>
+</form>
+
+@section Scripts
+{
+    <script src="~/js/consumation.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,128 @@
+﻿@model IEnumerable<CarAssistant.Features.Dairy.Models.DairyEntry>
+
+@{
+    Layout = "_Layout";
+    ViewData["Header"] = "Дневник обслуживания";
+}
+
+<div class="flex items-center justify-between">
+    <h1 class="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
+        Записи дневника
+    </h1>
+    <button onclick="openModal('new')"
+            class="w-10 h-10 rounded-full bg-gradient-to-r from-purple-600 to-cyan-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/50 hover:scale-110 transition-transform duration-300">
+        <i class="fas fa-plus text-lg"></i>
+    </button>
+    
+    
+</div>
+
+<div class="space-y-4" id="postsContainer">
+    @if (!Model.Any())
+    {
+        <div class="bg-slate-800/30 backdrop-blur-sm border border-slate-700 rounded-2xl p-4 text-sm text-slate-400 text-center">
+            Пока нет записей в дневнике. Добавьте первую с помощью кнопки «+».
+        </div>
+    }
+
+    @foreach (var entry in Model)
+    {
+        <div class="notification-container">
+            <button type="button" class="delete-btn" onclick="deleteDairyEntry(@entry.Id)"><i class="fas fa-trash"></i></button>
+            <div class="bg-slate-800/30 backdrop-blur-sm border border-slate-700 rounded-2xl p-4 space-y-3 hover:border-purple-500/30 transition-colors relative notification-item"
+                 data-entry-id="@entry.Id" data-entry-title="@entry.Title" data-entry-text="@entry.Text"
+                 ontouchstart="startSwipe(event)" ontouchmove="swipeMove(event)" ontouchend="endSwipe(event)"
+                 onmousedown="startSwipe(event)" onmousemove="swipeMove(event)" onmouseup="endSwipe(event)"
+                 onmouseleave="cancelSwipe(event)">
+            <div class="flex items-start justify-between">
+                <h3 class="font-bold text-white text-lg">@entry.Title</h3>
+                <span class="text-xs text-slate-400">@entry.Date.ToLocalTime().ToString("dd MMM yyyy")</span>
+            </div>
+            <p class="text-sm text-slate-300">@entry.Text</p>
+            @if (entry.Photos != null && entry.Photos.Any())
+            {
+                <div class="flex gap-2 overflow-x-auto pb-1">
+                    @foreach (var photo in entry.Photos)
+                    {
+                        <img src="@photo.Url" data-photo-url="@photo.Url" class="h-16 w-16 object-cover rounded-xl border border-purple-500/30 cursor-pointer" onclick="openDairyPhotoViewer(this)" />
+                    }
+                </div>
+            }
+                <div class="flex justify-end">
+                    <button onclick="openModal('edit', @entry.Id)" class="text-slate-400 hover:text-purple-400 transition-colors">
+                        <i class="fas fa-pencil-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div id="modalOverlay" class="modal-overlay" onclick="closeModal(event)">
+    <div class="modal-content bg-slate-900 border border-slate-700 rounded-3xl p-6 shadow-2xl shadow-purple-500/20" onclick="event.stopPropagation()">
+        <h2 id="modalTitle" class="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent mb-4">
+            Новая запись</h2>
+
+        <form id="postForm" asp-action="Save" asp-controller="Dairy" method="post" enctype="multipart/form-data" class="space-y-4">
+            <input type="hidden" id="postId" name="Id" />
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Заголовок</label>
+                <input type="text" id="postTitle" name="Title" placeholder="Например: Замена масла" required
+                       class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-slate-200 placeholder-slate-500 transition-all duration-200">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Текст записи</label>
+                <textarea id="postText" name="Text" rows="3" placeholder="Что сделали, впечатления..." required
+                          class="w-full px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-slate-200 placeholder-slate-500 transition-all duration-200"></textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2">Фото (можно добавить несколько)</label>
+
+                <div id="photoPreviewContainer" class="flex flex-wrap gap-2 mb-2"></div>
+
+                <label class="w-full py-2 border border-dashed border-purple-500/50 rounded-xl text-purple-400 hover:bg-purple-500/10 transition-colors flex items-center justify-center gap-2 cursor-pointer">
+                    <i class="fas fa-plus"></i>
+                    <span>Выбрать фото с устройства</span>
+                    <input type="file" id="photosInput" name="photos" multiple accept="image/*"
+                           style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;"
+                           onchange="handleDairyPhotosSelected(this)">
+                </label>
+            </div>
+            <div class="flex gap-3 pt-4">
+                <button type="button" onclick="closeModal()"
+                        class="flex-1 py-3 border border-slate-700 rounded-xl text-slate-300 hover:bg-slate-800 transition-colors">
+                    Отмена
+                </button>
+                <button type="submit"
+                        class="flex-1 py-3 bg-gradient-to-r from-purple-600 to-cyan-600 text-white font-semibold rounded-xl shadow-lg shadow-purple-500/50 hover:scale-[1.02] transition-all duration-300">
+                    Сохранить
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="dairyPhotoViewer" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 hidden" onclick="closeDairyPhotoViewer(event)">
+    <div class="relative max-w-3xl w-full px-4" onclick="event.stopPropagation()">
+        <button type="button" class="absolute top-2 right-4 text-slate-300 hover:text-white text-2xl" onclick="closeDairyPhotoViewer(event)">
+            &times;
+        </button>
+        <button type="button" class="absolute left-2 top-1/2 -translate-y-1/2 text-slate-300 hover:text-white text-3xl" onclick="prevDairyPhoto(event)">
+            &#10094;
+        </button>
+        <button type="button" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 hover:text-white text-3xl" onclick="nextDairyPhoto(event)">
+            &#10095;
+        </button>
+
+        <div class="flex items-center justify-center">
+            <img id="dairyViewerImage" src="" class="max-h-[80vh] w-auto rounded-xl shadow-2xl border border-slate-700" />
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script src="~/js/dairy.js" asp-append-version="true"></script>
+}
