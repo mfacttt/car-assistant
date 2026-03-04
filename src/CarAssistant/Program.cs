@@ -19,24 +19,16 @@ var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 // Add services to the container.
-if (builder.Environment.IsDevelopment())
-{
-    // В режиме разработки используем InMemory БД (как было изначально)
-    builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseInMemoryDatabase("CarAssistantDb"));
-}
-else
-{
-    // В продакшене используем реальную persistent БД (SQLite)
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-    if (string.IsNullOrWhiteSpace(connectionString))
-    {
-        throw new InvalidOperationException("Connection string 'DefaultConnection' is not configured.");
-    }
+// Используем одну и ту же persistent БД (SQLite) и в dev, и в prod,
+// чтобы поведение было идентичным и данные не "терялись".
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+                      ?? "Data Source=carassistant.db";
 
-    builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlite(connectionString));
-}
+Console.WriteLine($"ASPNETCORE_ENVIRONMENT = {builder.Environment.EnvironmentName}");
+Console.WriteLine("Using SQLite connection string: " + connectionString);
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlite(connectionString));
 
 builder.Services.AddScoped<LoginUserCommandHandler>();
 builder.Services.AddScoped<RegisterUserCommandHandler>();
@@ -82,6 +74,7 @@ app.UseAuthorization();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    Console.WriteLine("EF Core provider: " + db.Database.ProviderName);
     db.Database.EnsureCreated();
 }
 
